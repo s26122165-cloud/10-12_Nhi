@@ -3,26 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>希臘許願池 - 朋友對我的動態留言板</title>
+  <title>希臘許願池 - 朋友動態留言板</title>
   
-  <!-- Google Fonts: 引入典雅的希臘字體風格與中文繁體字體 -->
+  <!-- 引入 Google Fonts 與 FontAwesome 圖示庫 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   <style>
-    /* =========================================================
-       1. 全局 CSS 變數與基礎設定
-       ========================================================= */
+    /* ==============================================
+       1. 全局變數與風格重置 (Greek Aegean Theme)
+       ============================================== */
     :root {
-      --primary-blue: #005580;
-      --sea-blue: #1a8cba;
-      --pool-cyan: #48cae4;
-      --gold-main: #d4af37;
-      --gold-light: #f3e5ab;
-      --marble-white: #f8f9fa;
-      --text-dark: #2c3e50;
-      --shadow-gold: rgba(212, 175, 55, 0.4);
+      --aegean-blue: #0b3c5d;
+      --sky-blue: #328cc1;
+      --sea-foam: #e0f2fe;
+      --greek-gold: #d9b310;
+      --gold-glow: rgba(217, 179, 16, 0.4);
+      --marble-white: #f8fafc;
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --text-dark: #1d2731;
+      --font-title: 'Cinzel', 'Noto Serif TC', serif;
+      --font-body: 'Noto Serif TC', serif;
     }
 
     * {
@@ -32,398 +35,370 @@
     }
 
     body {
-      font-family: 'Noto Serif TC', serif;
-      background: linear-gradient(180deg, #0b2545 0%, #134074 40%, #005580 100%);
-      color: var(--text-dark);
+      font-family: var(--font-body);
+      background: linear-gradient(180deg, #071e30 0%, #0b3c5d 45%, #1d5f8a 100%);
       min-height: 100vh;
-      overflow-x: hidden;
+      color: var(--text-dark);
+      padding: 40px 20px;
       position: relative;
+      overflow-x: hidden;
     }
 
-    /* 水池波紋背景動畫 */
+    /* 愛琴海閃爍光點與微光背景裝飾 */
     body::before {
-      content: '';
+      content: "";
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: 0; left: 0; width: 100%; height: 100%;
       background: 
-        radial-gradient(circle at 50% 30%, rgba(72, 202, 228, 0.15) 0%, transparent 60%),
-        radial-gradient(circle at 20% 80%, rgba(212, 175, 55, 0.08) 0%, transparent 40%);
+        radial-gradient(circle at 20% 20%, rgba(217, 179, 16, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(224, 242, 254, 0.12) 0%, transparent 40%);
       pointer-events: none;
       z-index: 0;
     }
 
-    /* =========================================================
-       2. 頁首與希臘柱門楣視覺 (Header & Pantheon Frame)
-       ========================================================= */
     .container {
-      max-width: 1000px;
+      max-width: 960px;
       margin: 0 auto;
-      padding: 40px 20px;
       position: relative;
       z-index: 1;
     }
 
-    .fountain-header {
+    /* ==============================================
+       2. 頁頭許願池視覺 (Header)
+       ============================================== */
+    header {
       text-align: center;
-      margin-bottom: 50px;
-      position: relative;
+      margin-bottom: 45px;
+      color: var(--marble-white);
     }
 
-    .pantheon-roof {
-      width: 0;
-      height: 0;
-      border-left: 140px solid transparent;
-      border-right: 140px solid transparent;
-      border-bottom: 45px solid var(--gold-main);
-      margin: 0 auto -5px auto;
-      filter: drop-shadow(0 -4px 8px rgba(0,0,0,0.3));
-      position: relative;
+    .fountain-icon-wrapper {
+      font-size: 3.2rem;
+      color: var(--greek-gold);
+      margin-bottom: 12px;
+      text-shadow: 0 0 20px var(--gold-glow);
+      animation: float 3.5s ease-in-out infinite;
     }
 
-    .pantheon-roof::after {
-      content: '🏛️';
-      font-size: 20px;
-      position: absolute;
-      top: 15px;
-      left: -10px;
-    }
-
-    .header-card {
-      background: linear-gradient(145deg, #ffffff, #f0f4f8);
-      padding: 30px 20px;
-      border-radius: 12px;
-      border: 3px solid var(--gold-main);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(212, 175, 55, 0.2);
-      display: inline-block;
-      width: 100%;
-      max-width: 750px;
-    }
-
-    .header-title {
-      font-family: 'Cinzel', 'Noto Serif TC', serif;
-      font-size: 2.4rem;
-      color: var(--primary-blue);
+    header h1 {
+      font-family: var(--font-title);
+      font-size: 2.6rem;
       letter-spacing: 3px;
-      margin-bottom: 10px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      color: var(--marble-white);
+      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+      margin-bottom: 8px;
     }
 
-    .header-subtitle {
+    header p {
+      font-size: 1.1rem;
+      color: var(--sea-foam);
+      opacity: 0.9;
+    }
+
+    .greek-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .greek-divider::before, .greek-divider::after {
+      content: "";
+      height: 2px;
+      width: 90px;
+      background: linear-gradient(90deg, transparent, var(--greek-gold), transparent);
+    }
+    .greek-divider i {
+      margin: 0 15px;
+      color: var(--greek-gold);
       font-size: 1rem;
-      color: #555;
-      letter-spacing: 1px;
     }
 
-    /* =========================================================
-       3. 酷炫載入動畫 (Loading Animation)
-       ========================================================= */
-    #loading-screen {
+    /* ==============================================
+       3. 酷炫水波紋載入動畫 (Fountain Ripple Loader)
+       ============================================== */
+    #loading {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 60px 0;
+      padding: 70px 0;
+      color: var(--sea-foam);
     }
 
-    .fountain-loader {
+    .ripple-loader {
       position: relative;
-      width: 100px;
-      height: 100px;
+      width: 90px;
+      height: 90px;
+      margin-bottom: 25px;
     }
 
-    /* 許願池水波漣漪效果 */
-    .ripple {
+    .ripple-loader div {
       position: absolute;
-      border: 3px solid var(--pool-cyan);
+      border: 3px solid var(--greek-gold);
       opacity: 1;
       border-radius: 50%;
-      animation: rippleAnim 2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+      animation: ripple 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
     }
 
-    .ripple:nth-child(2) {
-      animation-delay: -0.6s;
+    .ripple-loader div:nth-child(2) {
+      animation-delay: -1s;
+      border-color: var(--sea-foam);
     }
 
-    .ripple:nth-child(3) {
-      animation-delay: -1.2s;
-    }
-
-    @keyframes rippleAnim {
+    @keyframes ripple {
       0% {
-        top: 50px;
-        left: 50px;
-        width: 0;
-        height: 0;
+        top: 40px; left: 40px;
+        width: 0; height: 0;
         opacity: 1;
       }
       100% {
-        top: 0px;
-        left: 0px;
-        width: 100px;
-        height: 100px;
+        top: 0px; left: 0px;
+        width: 80px; height: 80px;
         opacity: 0;
       }
     }
 
-    /* 中央旋轉希臘金幣 */
-    .loading-coin {
-      position: absolute;
-      top: 30px;
-      left: 30px;
-      width: 40px;
-      height: 40px;
-      background: radial-gradient(circle, #ffe066 0%, var(--gold-main) 100%);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      box-shadow: 0 0 15px var(--gold-main);
-      animation: flipCoin 1.5s ease-in-out infinite;
-    }
-
-    @keyframes flipCoin {
-      0% { transform: rotateY(0deg); }
-      50% { transform: rotateY(180deg); }
-      100% { transform: rotateY(360deg); }
-    }
-
     .loading-text {
-      margin-top: 25px;
-      font-size: 1.2rem;
-      color: var(--gold-light);
-      font-family: 'Cinzel', 'Noto Serif TC', serif;
-      letter-spacing: 2px;
+      font-family: var(--font-title);
+      font-size: 1.25rem;
+      letter-spacing: 3px;
+      animation: pulseText 1.5s infinite alternate;
     }
 
-    .loading-dots::after {
-      content: '...';
-      animation: dots 1.5s steps(4, end) infinite;
+    @keyframes pulseText {
+      0% { opacity: 0.5; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1.02); }
     }
 
-    @keyframes dots {
-      0%, 20% { content: ''; }
-      40% { content: '.'; }
-      60% { content: '..'; }
-      80%, 100% { content: '...'; }
-    }
-
-    /* =========================================================
-       4. 留言許願卡片區 (Message Cards Grid)
-       ========================================================= */
-    .board-grid {
+    /* ==============================================
+       4. 許願石板卡片區 (Message Cards Grid)
+       ============================================== */
+    #message-board {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 25px;
-      opacity: 0;
-      transition: opacity 0.8s ease;
     }
 
-    .board-grid.loaded {
-      opacity: 1;
-    }
-
-    /* 大理石許願卡片 */
     .wish-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 244, 248, 0.9));
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
       border-radius: 16px;
-      padding: 25px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25),
+                  inset 0 0 0 1px rgba(255, 255, 255, 0.6);
       position: relative;
-      border: 2px solid var(--gold-light);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      backdrop-filter: blur(5px);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      overflow: hidden;
     }
 
-    /* 卡片 Hover 漂浮效果 */
     .wish-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: var(--gold-main);
-      box-shadow: 0 18px 30px rgba(0, 0, 0, 0.35), 0 0 20px var(--shadow-gold);
-    }
-
-    /* 左上角金幣浮雕圖示 */
-    .wish-card::before {
-      content: '🪙';
-      position: absolute;
-      top: -12px;
-      right: 15px;
-      font-size: 28px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35),
+                  0 0 18px var(--gold-glow);
+      border-color: var(--greek-gold);
     }
 
     .card-header {
       display: flex;
       align-items: center;
       margin-bottom: 15px;
-      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-      padding-bottom: 10px;
+      border-bottom: 1px dashed rgba(11, 60, 93, 0.2);
+      padding-bottom: 12px;
     }
 
-    .author-avatar {
-      width: 40px;
-      height: 40px;
+    .avatar {
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      background: linear-gradient(45deg, var(--gold-main), var(--gold-light));
-      color: var(--primary-blue);
+      background: linear-gradient(135deg, var(--sky-blue), var(--aegean-blue));
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       margin-right: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      border: 2px solid var(--greek-gold);
       flex-shrink: 0;
     }
 
     .author-info {
-      flex-grow: 1;
+      flex: 1;
       overflow: hidden;
     }
 
     .author-name {
       font-weight: 700;
-      color: var(--primary-blue);
+      color: var(--aegean-blue);
       font-size: 1.1rem;
-      white-space: nowrap;
-      overflow: hidden;
+      line-height: 1.2;
       text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
 
-    .timestamp {
-      font-size: 0.75rem;
-      color: #7f8c8d;
-      margin-top: 2px;
+    .wish-time {
+      font-size: 0.78rem;
+      color: #64748b;
+      margin-top: 3px;
     }
 
-    .wish-content {
+    .card-body {
       font-size: 0.98rem;
-      line-height: 1.7;
-      color: #333;
-      word-break: break-word;
+      line-height: 1.6;
+      color: var(--text-dark);
       white-space: pre-wrap;
-      margin-bottom: 15px;
-      position: relative;
-      z-index: 1;
+      word-break: break-word;
+      margin-bottom: 16px;
+      flex-grow: 1;
     }
 
     .card-footer {
       text-align: right;
-      font-family: 'Cinzel', serif;
-      font-size: 0.75rem;
-      color: var(--gold-main);
-      font-weight: bold;
-      letter-spacing: 1px;
+      font-size: 0.8rem;
+      color: var(--greek-gold);
+      font-weight: 600;
     }
 
-    /* =========================================================
-       5. 無資料或錯誤狀態
-       ========================================================= */
-    .empty-state {
-      text-align: center;
-      color: var(--gold-light);
-      font-size: 1.2rem;
-      padding: 50px 0;
+    .notice-box {
       grid-column: 1 / -1;
+      background: var(--card-bg);
+      padding: 35px;
+      border-radius: 16px;
+      text-align: center;
+      color: var(--aegean-blue);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     }
 
-    /* 響應式調整 */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
     @media (max-width: 600px) {
-      .header-title {
-        font-size: 1.8rem;
-      }
-      .pantheon-roof {
-        border-left-width: 100px;
-        border-right-width: 100px;
-        border-bottom-width: 35px;
-      }
+      header h1 { font-size: 1.9rem; }
+      #message-board { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- 希臘神殿風格標題區 -->
-    <header class="fountain-header">
-      <div class="pantheon-roof"></div>
-      <div class="header-card">
-        <h1 class="header-title">🏛️ 許願池對話錄 🏛️</h1>
-        <p class="header-subtitle">投下一枚金幣，將祝福與悄悄話沉澱於愛琴海深處</p>
+    <header>
+      <div class="fountain-icon-wrapper">
+        <i class="fa-solid fa-coins"></i>
+      </div>
+      <h1>希臘許願池</h1>
+      <p>投下一枚金幣，讓愛琴海的水波傳遞朋友間的悄悄話</p>
+      
+      <div class="greek-divider">
+        <i class="fa-solid fa-crown"></i>
       </div>
     </header>
 
-    <!-- 酷炫載入中畫面 -->
-    <div id="loading-screen">
-      <div class="fountain-loader">
-        <div class="ripple"></div>
-        <div class="ripple"></div>
-        <div class="ripple"></div>
-        <div class="loading-coin">🏺</div>
+    <!-- 酷炫載入中水波動畫 -->
+    <div id="loading">
+      <div class="ripple-loader">
+        <div></div>
+        <div></div>
       </div>
-      <p class="loading-text">讀取留言中<span class="loading-dots"></span></p>
+      <div class="loading-text">讀取留言中...</div>
     </div>
 
-    <!-- 留言展示卡片區 -->
-    <main id="board-grid" class="board-grid"></main>
+    <!-- 留言板卡片呈現區 -->
+    <main id="message-board" style="display: none;"></main>
   </div>
 
   <script>
-    // CSV 設定檔與網址
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/18joM6HHlNb9ojSSgLQR3ZYxV_pJwoTJXgaiUXMmZvDA/edit?usp=sharing';
+    // 試算表 CSV 匯出網址
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/18joM6HHlNb9ojSSgLQR3ZYxV_pJwoTJXgaiUXMmZvDA/export?format=csv';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchWishMessages();
+    });
 
     /**
-     * 高階 Robust CSV 解析函數
-     * 專門處理：雙引號括起來的內容、欄位內包含逗號 (,) 以及包含換行符號 (\n) 的狀況
+     * 使用 fetch 取得 CSV 資料並轉換為陣列
+     */
+    async function fetchWishMessages() {
+      const loadingEl = document.getElementById('loading');
+      const boardEl = document.getElementById('message-board');
+
+      try {
+        const response = await fetch(CSV_URL);
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤！狀態碼: ${response.status}`);
+        }
+        
+        const csvText = await response.text();
+        
+        // 解析 CSV（正確處理引號與逗號）
+        const parsedData = parseCSV(csvText);
+
+        // 跳過表頭 (第一行)，將資料整理成物件陣列：[時間戳記, 名字, 悄悄話]
+        const messages = parsedData.slice(1).map(row => ({
+          timestamp: row[0] ? row[0].trim() : '',
+          name: row[1] ? row[1].trim() : '無名許願者',
+          message: row[2] ? row[2].trim() : ''
+        })).filter(item => item.message !== '' || item.name !== ''); // 過濾空行
+
+        // 隱藏載入動畫，顯示留言板
+        loadingEl.style.display = 'none';
+        boardEl.style.display = 'grid';
+
+        renderMessages(messages);
+
+      } catch (error) {
+        console.error('Fetch Error:', error);
+        loadingEl.innerHTML = `
+          <div class="notice-box">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size:2rem; color:#e74c3c; margin-bottom:10px;"></i>
+            <h3>無法讀取許願池留言</h3>
+            <p style="margin-top:8px; font-size:0.95rem;">請確認試算表已開啟「知道連結的人皆可查看」共用權限。</p>
+          </div>
+        `;
+      }
+    }
+
+    /**
+     * CSV 狀態機解析器：完美處理留言內容包含逗號、引號或換行的情況
      */
     function parseCSV(text) {
       const result = [];
       let row = [];
-      let entry = '';
-      let insideQuotes = false;
+      let cur = '';
+      let inQuotes = false;
 
       for (let i = 0; i < text.length; i++) {
-        const char = text[i];
-        const nextChar = text[i + 1];
+        const c = text[i];
+        const next = text[i + 1];
 
-        if (char === '"') {
-          if (insideQuotes && nextChar === '"') {
-            // 處理連續兩個雙引號轉義 (例如: "" -> ")
-            entry += '"';
-            i++; 
-          } else {
-            // 切換引號開關
-            insideQuotes = !insideQuotes;
+        if (c === '"') {
+          if (inQuotes && next === '"') { // 處理雙引號轉義 ("")
+            cur += '"';
+            i++;
+          } else { // 切換引號狀態
+            inQuotes = !inQuotes;
           }
-        } else if (char === ',' && !insideQuotes) {
-          // 遇到逗號且不在引號內 -> 結束一個欄位
-          row.push(entry.trim());
-          entry = '';
-        } else if ((char === '\r' || char === '\n') && !insideQuotes) {
-          // 遇到換行且不在引號內 -> 結束一行
-          if (char === '\r' && nextChar === '\n') {
-            i++; // 跳過 \r\n
-          }
-          row.push(entry.trim());
-          if (row.some(field => field.length > 0)) {
-            result.push(row);
-          }
+        } else if (c === ',' && !inQuotes) { // 非引號內的逗號 -> 切換欄位
+          row.push(cur);
+          cur = '';
+        } else if ((c === '\r' || c === '\n') && !inQuotes) { // 非引號內的換行 -> 切換列
+          if (c === '\r' && next === '\n') i++;
+          row.push(cur);
+          cur = '';
+          if (row.some(f => f.length > 0)) result.push(row);
           row = [];
-          entry = '';
         } else {
-          entry += char;
+          cur += c;
         }
       }
 
-      // 處理檔案結尾最後一個欄位
-      if (entry || row.length > 0) {
-        row.push(entry.trim());
+      if (cur.length > 0 || row.length > 0) {
+        row.push(cur);
         result.push(row);
       }
 
@@ -431,62 +406,50 @@
     }
 
     /**
-     * 渲染留言卡片至畫面上
+     * 渲染留言卡片至 DOM
      */
-    function renderMessages(dataArray) {
-      const boardGrid = document.getElementById('board-grid');
-      const loadingScreen = document.getElementById('loading-screen');
+    function renderMessages(messages) {
+      const boardEl = document.getElementById('message-board');
 
-      // 移除載入中動畫
-      loadingScreen.style.display = 'none';
-
-      // 檢查是否有資料 (去除標題列算起)
-      if (!dataArray || dataArray.length <= 1) {
-        boardGrid.innerHTML = `<div class="empty-state">✨ 許願池裡目前還沒有留言，成為第一個投下金幣的人吧！</div>`;
-        boardGrid.classList.add('loaded');
+      if (messages.length === 0) {
+        boardEl.innerHTML = `
+          <div class="notice-box">
+            <i class="fa-regular fa-paper-plane" style="font-size:2rem; margin-bottom:10px;"></i>
+            <p>許願池目前還沒有悄悄話，快成為第一個投下金幣的人吧！</p>
+          </div>
+        `;
         return;
       }
 
-      // 去除 CSV 標題列 (Header: 時間戳記, 名字, 悄悄話)
-      const rows = dataArray.slice(1);
-      
-      // 將留言反轉，讓最新的留言顯示在最上方
-      rows.reverse();
+      // 將最新的留言顯示在最上面 (Reverse 倒序)
+      const htmlContent = messages.reverse().map(item => {
+        const safeName = escapeHTML(item.name);
+        const safeMessage = escapeHTML(item.message);
+        const safeTime = escapeHTML(item.timestamp);
+        const firstChar = safeName.charAt(0).toUpperCase() || '希';
 
-      let htmlContent = '';
-
-      rows.forEach(row => {
-        // 解構欄位：預設 0: 時間戳記, 1: 名字, 2: 悄悄話
-        const timestamp = row[0] || '未知時間';
-        const name = row[1] || '神秘的許願者';
-        const message = row[2] || '（這個許願者什麼也沒留下...）';
-
-        // 取得名字第一個字做為 Avatar 圖示
-        const avatarInitial = name.trim().charAt(0).toUpperCase() || '🏛️';
-
-        htmlContent += `
+        return `
           <article class="wish-card">
-            <div>
-              <div class="card-header">
-                <div class="author-avatar">${escapeHTML(avatarInitial)}</div>
-                <div class="author-info">
-                  <div class="author-name">${escapeHTML(name)}</div>
-                  <div class="timestamp">${escapeHTML(timestamp)}</div>
-                </div>
+            <div class="card-header">
+              <div class="avatar">${firstChar}</div>
+              <div class="author-info">
+                <div class="author-name">${safeName}</div>
+                <div class="wish-time"><i class="fa-regular fa-clock"></i> ${safeTime}</div>
               </div>
-              <p class="wish-content">${escapeHTML(message)}</p>
             </div>
-            <div class="card-footer">VERITAS & AMICITIA</div>
+            <div class="card-body">${safeMessage}</div>
+            <div class="card-footer">
+              <i class="fa-solid fa-water"></i> Aegean Wish
+            </div>
           </article>
         `;
-      });
+      }).join('');
 
-      boardGrid.innerHTML = htmlContent;
-      boardGrid.classList.add('loaded');
+      boardEl.innerHTML = htmlContent;
     }
 
     /**
-     * XSS 防護安全轉義函數
+     * XSS 防範：轉義字串中的特殊字元
      */
     function escapeHTML(str) {
       return str
@@ -496,47 +459,6 @@
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
     }
-
-    /**
-     * 初始化：非同步獲取 Google 試算表 CSV 資料
-     */
-    async function fetchWishData() {
-      try {
-        // 設定快取標頭確保能拿最新資料，加上時間戳記防止 CDN 暫存
-        const response = await fetch(`${CSV_URL}&t=${new Date().getTime()}`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
-        }
-
-        const csvText = await response.text();
-        
-        // 解析 CSV 文本為二維陣列
-        const parsedData = parseCSV(csvText);
-        
-        console.log("解析成功，共有留言筆數:", parsedData.length - 1);
-
-        // 延遲微小時間展現酷炫 Loader (可視需要微調)
-        setTimeout(() => {
-          renderMessages(parsedData);
-        }, 1000);
-
-      } catch (error) {
-        console.error('讀取許願池留言失敗:', error);
-        
-        const loadingScreen = document.getElementById('loading-screen');
-        loadingScreen.innerHTML = `
-          <div style="color: #ff6b6b; text-align: center;">
-            <p style="font-size: 2rem; margin-bottom: 10px;">⚡</p>
-            <p>波塞頓的神力干擾了連線，無法讀取留言...</p>
-            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">(${escapeHTML(error.message)})</p>
-          </div>
-        `;
-      }
-    }
-
-    // 當 DOM 載入完畢後開始執行
-    document.addEventListener('DOMContentLoaded', fetchWishData);
   </script>
 </body>
 </html>
