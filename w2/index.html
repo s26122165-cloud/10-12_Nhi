@@ -4,377 +4,429 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>今天吃什麼？ - 隨機抽籤機</title>
-
-  <!-- Tailwind CSS CDN -->
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- FontAwesome 圖示 CDN -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Zen Maru Gothic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
   
-  <!-- Canvas Confetti 慶祝彩帶特效 CDN -->
+  <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-  <!-- 🎨 內嵌 CSS 樣式區 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              orange: '#ff6b35',
+              dark: '#4a3b32'
+            }
+          },
+          fontFamily: {
+            sans: ['"Zen Maru Gothic"', 'sans-serif'],
+          },
+          boxShadow: {
+            'cute': '0 8px 0px 0px #e5a93b',
+            'cute-pressed': '0 2px 0px 0px #e5a93b',
+            'cute-orange': '0 6px 0px 0px #d9531e',
+            'cute-orange-pressed': '0 2px 0px 0px #d9531e',
+            'card': '0 10px 25px -5px rgba(245, 158, 11, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    /* 自訂浮動動畫 (背景美食圖示) */
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0px) rotate(0deg);
-      }
-      50% {
-        transform: translateY(-15px) rotate(10deg);
-      }
+    body {
+      background-color: #fffaf0;
+      background-image: radial-gradient(#fde68a 1.8px, transparent 1.8px), radial-gradient(#fde68a 1.8px, #fffaf0 1.8px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+      color: #4a3b32;
     }
 
-    .float-anim {
-      animation: float 4s ease-in-out infinite;
+    @keyframes bounceIn {
+      0% { opacity: 0; transform: scale(0.3) translateY(-20px); }
+      60% { opacity: 1; transform: scale(1.1) translateY(5px); }
+      80% { transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
     }
 
-    /* 自訂生動彈跳動畫 (抽中美食標題特效) */
-    @keyframes pop-bounce {
-      0% {
-        transform: scale(0.3);
-        opacity: 0;
-      }
-      50% {
-        transform: scale(1.15);
-      }
-      70% {
-        transform: scale(0.95);
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
+    .animate-bounce-in {
+      animation: bounceIn 0.65s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
     }
 
-    .pop-bounce {
-      animation: pop-bounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-
-    /* 滾動條美化樣式 - 支援 Firefox */
-    * {
-      scrollbar-width: thin;
-      scrollbar-color: #fcd34d #fef3c7;
-    }
-
-    /* 滾動條美化樣式 - 支援 Chrome, Safari, Edge */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #fef3c7;
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #fcd34d;
-      border-radius: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #f59e0b;
+    .slot-spin {
+      filter: blur(1px);
     }
   </style>
-
-  <!-- ⚡ 內嵌 JavaScript 邏輯區 (使用 defer 確保 DOM 載入完成) -->
-  <script defer>
-    document.addEventListener('DOMContentLoaded', () => {
-      
-      // 1. 預設的美食清單資料
-      const defaultFoods = [
-        {
-          name: '品香',
-          image: 'https://i.postimg.cc/xcJZ02Xx/xia-zai-(1).jpg'
-        },
-        {
-          name: '水餃',
-          image: 'https://i.postimg.cc/BL7h0Y4D/xia-zai.jpg'
-        },
-        {
-          name: '深水食堂',
-          image: 'https://i.postimg.cc/XG12bH49/unnamed-(1).jpg'
-        },
-        {
-          name: '轉角小吃現炒會客菜',
-          image: 'https://i.postimg.cc/Q9Y634h7/unnamed-(2).jpg'
-        },
-        {
-          name: '樹科大小林鴨肉飯',
-          image: 'https://i.postimg.cc/G8gMC7dG/unnamed.jpg'
-        }
-      ];
-
-      // 嘗試從 LocalStorage 讀取自訂菜單，若無則使用預設
-      let foods = JSON.parse(localStorage.getItem('my_food_list')) || [...defaultFoods];
-
-      // 2. 取得 DOM 元素
-      const drawBtn = document.getElementById('draw-btn');
-      const mainTitle = document.getElementById('main-title');
-      const subtitle = document.getElementById('subtitle');
-      const foodImage = document.getElementById('food-image');
-      const placeholderIcon = document.getElementById('placeholder-icon');
-      const mapBtn = document.getElementById('map-btn');
-      
-      // Modal 彈窗相關元素
-      const menuBtn = document.getElementById('menu-btn');
-      const menuModal = document.getElementById('menu-modal');
-      const closeModalBtn = document.getElementById('close-modal-btn');
-      const foodListUl = document.getElementById('food-list');
-      const addFoodBtn = document.getElementById('add-food-btn');
-      const newFoodInput = document.getElementById('new-food-input');
-      const resetDefaultBtn = document.getElementById('reset-default-btn');
-
-      let isRolling = false; // 是否正在旋轉抽籤中
-
-      // 3. 抽籤主邏輯
-      drawBtn.addEventListener('click', () => {
-        if (isRolling) return;
-        if (foods.length === 0) {
-          alert('菜單目前沒有選項，請先點擊右上角⚙️新增美食喔！');
-          return;
-        }
-
-        isRolling = true;
-        drawBtn.disabled = true;
-        drawBtn.classList.add('opacity-80', 'cursor-not-allowed');
-
-        // 隱藏圖片與地圖按鈕，顯示預設佔位圖
-        foodImage.classList.add('hidden');
-        placeholderIcon.classList.remove('hidden');
-        mapBtn.classList.add('hidden');
-        subtitle.textContent = '美食決定中...';
-
-        let counter = 0;
-        const totalRolls = 20; // 滾動次數
-        const speed = 80; // 滾動速度(ms)
-
-        // 定時器：製作快速輪播動畫效果
-        const rollInterval = setInterval(() => {
-          const randomIndex = Math.floor(Math.random() * foods.length);
-          mainTitle.textContent = foods[randomIndex].name;
-          mainTitle.classList.remove('pop-bounce');
-          
-          counter++;
-          if (counter >= totalRolls) {
-            clearInterval(rollInterval);
-            finishDraw(); // 完成抽籤
-          }
-        }, speed);
-      });
-
-      // 4. 抽籤完成處理
-      function finishDraw() {
-        // 隨機挑選最終結果
-        const finalFood = foods[Math.floor(Math.random() * foods.length)];
-
-        // 替換大標題與字幕
-        mainTitle.textContent = `今天就吃：${finalFood.name}！`;
-        subtitle.textContent = '🎉 祝你有個美味的一餐！';
-
-        // 加上生動彈跳動畫
-        mainTitle.classList.remove('pop-bounce');
-        void mainTitle.offsetWidth; // 觸發重繪 (Reflow) 以重新播放 CSS 動畫
-        mainTitle.classList.add('pop-bounce');
-
-        // 顯示指定照片
-        foodImage.src = finalFood.image || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80';
-        placeholderIcon.classList.add('hidden');
-        foodImage.classList.remove('hidden');
-
-        // 設定 Google Map 搜尋連結
-        const googleMapUrl = `https://www.google.com/maps/search/${encodeURIComponent(finalFood.name)}`;
-        mapBtn.href = googleMapUrl;
-        mapBtn.classList.remove('hidden');
-
-        // 發射慶祝彩帶 (Confetti)
-        if (typeof confetti === 'function') {
-          confetti({
-            particleCount: 80,
-            spread: 70,
-            origin: { y: 0.6 }
-          });
-        }
-
-        // 重置按鈕狀態
-        isRolling = false;
-        drawBtn.disabled = false;
-        drawBtn.classList.remove('opacity-80', 'cursor-not-allowed');
-      }
-
-      // 5. 菜單管理彈窗邏輯
-      menuBtn.addEventListener('click', () => {
-        renderFoodList();
-        menuModal.classList.remove('hidden');
-      });
-
-      closeModalBtn.addEventListener('click', () => {
-        menuModal.classList.add('hidden');
-      });
-
-      // 點擊背景空白處關閉 Modal
-      menuModal.addEventListener('click', (e) => {
-        if (e.target === menuModal) {
-          menuModal.classList.add('hidden');
-        }
-      });
-
-      // 渲染菜單列表
-      function renderFoodList() {
-        foodListUl.innerHTML = '';
-        foods.forEach((food, index) => {
-          const li = document.createElement('li');
-          li.className = 'flex justify-between items-center bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-sm';
-          li.innerHTML = `
-            <span class="font-medium text-amber-900">${food.name}</span>
-            <button data-index="${index}" class="delete-btn text-red-400 hover:text-red-600 p-1 transition-colors">
-              <i class="fa-solid fa-trash-can"></i>
-            </button>
-          `;
-          foodListUl.appendChild(li);
-        });
-
-        // 綁定刪除事件
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const index = e.currentTarget.getAttribute('data-index');
-            foods.splice(index, 1);
-            saveFoods();
-            renderFoodList();
-          });
-        });
-      }
-
-      // 新增美食項目
-      addFoodBtn.addEventListener('click', () => {
-        const name = newFoodInput.value.trim();
-        if (!name) return;
-
-        foods.push({
-          name: name,
-          image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80'
-        });
-
-        newFoodInput.value = '';
-        saveFoods();
-        renderFoodList();
-      });
-
-      // 重置為預設菜單
-      resetDefaultBtn.addEventListener('click', () => {
-        if (confirm('確定要恢復預設的美食選項嗎？')) {
-          foods = [...defaultFoods];
-          saveFoods();
-          renderFoodList();
-        }
-      });
-
-      // 儲存至 LocalStorage
-      function saveFoods() {
-        localStorage.setItem('my_food_list', JSON.stringify(foods));
-      }
-
-    });
-  </script>
 </head>
-<body class="min-h-screen bg-amber-50 font-sans flex flex-col justify-between items-center p-4 relative overflow-x-hidden">
 
-  <!-- 背景可愛裝飾元素 -->
-  <div class="fixed top-10 left-8 text-4xl opacity-20 pointer-events-none float-anim">🍔</div>
-  <div class="fixed top-28 right-10 text-4xl opacity-20 pointer-events-none float-anim" style="animation-delay: 1s;">🍕</div>
-  <div class="fixed bottom-20 left-12 text-4xl opacity-20 pointer-events-none float-anim" style="animation-delay: 2s;">🍜</div>
-  <div class="fixed bottom-10 right-16 text-4xl opacity-20 pointer-events-none float-anim" style="animation-delay: 1.5s;">🍱</div>
+<body class="min-h-screen flex flex-col justify-between items-center p-4 font-sans selection:bg-brand-300">
 
-  <!-- 頂部列 -->
-  <header class="w-full max-w-md flex justify-between items-center py-2 px-4 z-10">
-    <div class="flex items-center space-x-2">
-      <span class="text-2xl">🍲</span>
-      <span class="font-bold text-amber-900 text-lg">美食抽籤機</span>
-    </div>
-    <button id="menu-btn" class="bg-white hover:bg-amber-100 text-amber-800 p-2.5 rounded-full shadow-md transition-all border border-amber-200 hover:scale-105 active:scale-95" title="管理菜單">
-      <i class="fa-solid fa-gear text-lg"></i>
+  <!-- Header -->
+  <header class="w-full max-w-md flex justify-end pt-2">
+    <button id="open-modal-btn" class="bg-white hover:bg-brand-50 border-2 border-brand-300 text-brand-dark font-bold px-3 py-1.5 rounded-full transition-all text-xs shadow-sm flex items-center gap-1">
+      <span>⚙️ 自訂菜單與店家</span>
     </button>
   </header>
 
-  <!-- 主要內容卡片 -->
-  <main class="w-full max-w-md my-auto z-10 py-4">
-    <div class="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-xl border-4 border-amber-200 text-center flex flex-col items-center">
-      
-      <!-- 標題/抽中美食區 -->
-      <div id="title-container" class="min-h-[90px] flex flex-col items-center justify-center mb-4 w-full">
-        <h1 id="main-title" class="text-3xl sm:text-4xl font-extrabold text-amber-900 tracking-wide drop-shadow-sm">
-          今天吃什麼？
-        </h1>
-        <p id="subtitle" class="text-amber-600 text-sm mt-2 font-medium">解決你的選擇困難症 😋</p>
+  <!-- Main Container -->
+  <main class="w-full max-w-md bg-white rounded-3xl p-6 md:p-8 border-4 border-brand-200 shadow-card my-auto text-center relative overflow-hidden">
+    
+    <!-- Decorative Floating Emojis -->
+    <div class="absolute top-3 left-3 text-2xl opacity-80 select-none">🍟</div>
+    <div class="absolute bottom-3 right-3 text-2xl opacity-80 select-none">🍕</div>
+
+    <!-- INITIAL DISPLAY -->
+    <div id="display-section">
+      <!-- Title: Will be swapped with dynamic bounce animation result -->
+      <h1 id="main-title" class="text-3xl md:text-4xl font-black text-brand-dark mb-6 tracking-tight">
+        今天吃什麼？
+      </h1>
+
+      <!-- Slot Machine Animation Container -->
+      <div id="slot-box" class="hidden py-8 my-4 bg-brand-50 rounded-2xl border-2 border-dashed border-brand-300">
+        <span id="slot-text" class="text-3xl font-black text-brand-orange slot-spin">
+          排骨飯
+        </span>
       </div>
 
-      <!-- 美食圖片容器 -->
-      <div id="image-container" class="w-full h-52 sm:h-60 bg-amber-100 rounded-2xl mb-6 overflow-hidden shadow-inner relative flex items-center justify-center border-2 border-amber-200">
-        <div id="placeholder-icon" class="text-center p-4">
-          <span class="text-6xl block mb-2 animate-bounce">🎲</span>
-          <span class="text-amber-700 font-bold text-sm">點擊下方按鈕開始抽籤！</span>
+      <!-- Result Card (Media & Multi-stores) -->
+      <div id="result-card" class="hidden text-left space-y-4 my-4">
+        
+        <!-- Tab Bar: Photo vs Video -->
+        <div class="flex justify-center gap-2">
+          <button id="tab-photo" class="px-3 py-1 bg-brand-orange text-white font-bold rounded-lg text-xs">
+            🖼️ 美食照片
+          </button>
+          <button id="tab-video" class="px-3 py-1 bg-brand-100 text-brand-dark hover:bg-brand-200 font-bold rounded-lg text-xs">
+            🎬 影音介紹
+          </button>
         </div>
-        <img id="food-image" src="" alt="美食圖片" class="w-full h-full object-cover hidden transition-all duration-300">
+
+        <!-- Media Display Frame -->
+        <div class="relative rounded-2xl overflow-hidden border-2 border-brand-200 aspect-video bg-black shadow-inner">
+          <img id="food-img" src="" alt="美食照片" class="w-full h-full object-cover">
+          <div id="video-wrap" class="hidden w-full h-full">
+            <iframe id="food-iframe" class="w-full h-full" src="" title="美食影片" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+        </div>
+
+        <!-- Stores & Addresses List -->
+        <div class="space-y-2 pt-1">
+          <div class="text-xs font-black text-brand-dark flex items-center justify-between">
+            <span>📍 推薦店家與地址列表：</span>
+          </div>
+
+          <div id="store-list" class="space-y-2 max-h-44 overflow-y-auto pr-1">
+            <!-- Dynamic 店家連結列表 -->
+          </div>
+        </div>
       </div>
-
-      <!-- 操作按鈕區 -->
-      <div class="w-full space-y-3">
-        <!-- 抽籤主按鈕 -->
-        <button id="draw-btn" class="w-full bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-extrabold text-xl sm:text-2xl py-4 px-6 rounded-2xl shadow-lg shadow-orange-500/30 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-1 active:shadow-md flex items-center justify-center space-x-2 border-b-4 border-orange-600">
-          <i class="fa-solid fa-dice text-2xl"></i>
-          <span>點我抽籤</span>
-        </button>
-
-        <!-- Google 地圖按鈕 (預設隱藏) -->
-        <a id="map-btn" href="#" target="_blank" rel="noopener noreferrer" class="hidden w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-lg py-3 px-6 rounded-2xl shadow-md transition-all duration-200 flex items-center justify-center space-x-2 transform hover:-translate-y-0.5 active:translate-y-0 border-b-4 border-emerald-700">
-          <i class="fa-solid fa-location-dot text-xl"></i>
-          <span>馬上出發找餐廳</span>
-        </a>
-      </div>
-
     </div>
+
+    <!-- Big Action Button -->
+    <div class="mt-6">
+      <button id="draw-btn" class="w-full py-4 px-6 bg-brand-400 hover:bg-brand-300 text-brand-dark font-black text-2xl rounded-2xl border-4 border-brand-500 shadow-cute active:shadow-cute-pressed active:translate-y-1.5 transition-all">
+        點我抽籤
+      </button>
+    </div>
+
   </main>
 
-  <!-- 底部版權宣告 -->
-  <footer class="text-center text-amber-700/60 text-xs py-2 z-10">
-    <p>做個快樂的吃貨 ❤️ 設計新手專用版</p>
-  </footer>
-
-  <!-- 自訂菜單彈出視窗 (Modal) -->
-  <div id="menu-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border-4 border-amber-300 transform transition-all scale-100">
-      <div class="flex justify-between items-center mb-4 border-b pb-2">
-        <h2 class="text-xl font-bold text-amber-900 flex items-center gap-2">
-          <i class="fa-solid fa-utensils text-orange-500"></i> 管理美食菜單
-        </h2>
-        <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 p-1 rounded-full">
-          <i class="fa-solid fa-xmark text-xl"></i>
-        </button>
+  <!-- Modal for Menu/Store Management -->
+  <div id="modal-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-5 border-4 border-brand-300 shadow-2xl max-h-[85vh] flex flex-col">
+      <div class="flex justify-between items-center pb-2 border-b border-brand-200 shrink-0">
+        <h3 class="font-black text-brand-dark text-base">⚙️ 管理美食與口袋店家</h3>
+        <button id="close-modal-btn" class="text-gray-400 hover:text-black font-bold p-1">✕</button>
       </div>
 
-      <!-- 新增選項輸入框 -->
-      <div class="flex gap-2 mb-4">
-        <input type="text" id="new-food-input" placeholder="新增美食名稱..." class="flex-1 px-3 py-2 border-2 border-amber-200 rounded-xl focus:outline-none focus:border-amber-400 text-sm">
-        <button id="add-food-btn" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl text-sm transition-colors">
-          新增
-        </button>
+      <div class="overflow-y-auto py-3 flex-1 space-y-3">
+        <!-- Add Food -->
+        <form id="add-food-form" class="space-y-2 bg-brand-50 p-3 rounded-xl border border-brand-200">
+          <input type="text" id="add-name" placeholder="美食名稱 (如: 牛肉麵)" required class="w-full px-2.5 py-1.5 text-xs bg-white border border-brand-300 rounded-lg">
+          <input type="text" id="add-video" placeholder="YouTube 影片網址 (選填)" class="w-full px-2.5 py-1.5 text-xs bg-white border border-brand-300 rounded-lg">
+          <button type="submit" class="w-full py-1.5 bg-brand-400 hover:bg-brand-300 text-brand-dark font-black text-xs rounded-lg border border-brand-500">
+            + 新增美食
+          </button>
+        </form>
+
+        <!-- Managed List -->
+        <div id="modal-list" class="space-y-2"></div>
       </div>
 
-      <!-- 菜單列表 -->
-      <div class="max-h-60 overflow-y-auto pr-1">
-        <ul id="food-list" class="space-y-2">
-          <!-- JS 動態生成清單項目 -->
-        </ul>
-      </div>
-
-      <div class="mt-4 pt-3 border-t text-right">
-        <button id="reset-default-btn" class="text-xs text-amber-600 hover:text-amber-800 underline">
-          重置為預設菜單
-        </button>
+      <div class="pt-2 border-t border-brand-200 flex justify-between items-center shrink-0">
+        <button id="reset-btn" class="text-xs text-brand-orange underline font-bold">重置預設</button>
+        <button id="save-modal-btn" class="px-4 py-1 bg-brand-dark text-white font-bold rounded-lg text-xs">完成</button>
       </div>
     </div>
   </div>
 
+  <!-- Footer -->
+  <footer class="text-xs font-bold text-brand-500/80 mb-2">
+    黃橘暖色調 ‧ 極簡隨機美食抽籤機 🍱
+  </footer>
+
+  <script>
+    // 預設選單資料 (包含美食、相片、影片、多店家與地址)
+    const DEFAULT_DATA = [
+      {
+        id: '1',
+        name: '排骨飯',
+        image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+        videoId: 'bN7kK-Lvh3A',
+        stores: [
+          { name: '正忠排骨飯 (站前店)', address: '台北市中正區忠孝西路一段80號' },
+          { name: '君悅排骨', address: '台北市大安區敦化南路一段190巷' }
+        ]
+      },
+      {
+        id: '2',
+        name: '水餃',
+        image: 'https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&w=800&q=80',
+        videoId: 'Fm3f1gWbTQA',
+        stores: [
+          { name: '巧之味手工水餃', address: '台北市中正區濟南路二段6號' },
+          { name: '八方雲集 (水餃鍋貼)', address: '台北市中山區南京東路' }
+        ]
+      },
+      {
+        id: '3',
+        name: '麥當勞',
+        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80',
+        videoId: 'L6YVUpz9v3c',
+        stores: [
+          { name: '麥當勞-館前店', address: '台北市中正區館前路8號' },
+          { name: '麥當勞-林森二店', address: '台北市中山區林森北路' }
+        ]
+      },
+      {
+        id: '4',
+        name: '義大利麵',
+        image: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80',
+        videoId: '3AAdKl1UYZs',
+        stores: [
+          { name: '螺絲瑪莉義麵坊', address: '台北市中山區南京西路12巷13弄9號' },
+          { name: '薩莉亞 Saizeriya', address: '台北市中山區中山北路二段' }
+        ]
+      },
+      {
+        id: '5',
+        name: '便利商店',
+        image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
+        videoId: 'mD2a_gB6B78',
+        stores: [
+          { name: '7-ELEVEN 門市', address: '附近 7-11 門市' },
+          { name: '全家 FamilyMart 門市', address: '附近全家便利商店' }
+        ]
+      }
+    ];
+
+    let foods = JSON.parse(localStorage.getItem('simple_food_picker')) || [...DEFAULT_DATA];
+    let isRolling = false;
+    let selectedFood = null;
+
+    // DOM Elements
+    const mainTitle = document.getElementById('main-title');
+    const drawBtn = document.getElementById('draw-btn');
+    const slotBox = document.getElementById('slot-box');
+    const slotText = document.getElementById('slot-text');
+    const resultCard = document.getElementById('result-card');
+    const foodImg = document.getElementById('food-img');
+    const foodIframe = document.getElementById('food-iframe');
+    const videoWrap = document.getElementById('video-wrap');
+    const storeList = document.getElementById('store-list');
+    const tabPhoto = document.getElementById('tab-photo');
+    const tabVideo = document.getElementById('tab-video');
+
+    // Modal Elements
+    const modalOverlay = document.getElementById('modal-overlay');
+    const openModalBtn = document.getElementById('open-modal-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const saveModalBtn = document.getElementById('save-modal-btn');
+    const modalList = document.getElementById('modal-list');
+    const addFoodForm = document.getElementById('add-food-form');
+    const resetBtn = document.getElementById('reset-btn');
+
+    function saveStorage() {
+      localStorage.setItem('simple_food_picker', JSON.stringify(foods));
+    }
+
+    function extractVid(url) {
+      if (!url) return '';
+      const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+      return (match && match[2].length === 11) ? match[2] : url;
+    }
+
+    // Tab Switch
+    tabPhoto.addEventListener('click', () => {
+      foodImg.classList.remove('hidden');
+      videoWrap.classList.add('hidden');
+      tabPhoto.className = 'px-3 py-1 bg-brand-orange text-white font-bold rounded-lg text-xs';
+      tabVideo.className = 'px-3 py-1 bg-brand-100 text-brand-dark hover:bg-brand-200 font-bold rounded-lg text-xs';
+    });
+
+    tabVideo.addEventListener('click', () => {
+      foodImg.classList.add('hidden');
+      videoWrap.classList.remove('hidden');
+      tabVideo.className = 'px-3 py-1 bg-brand-orange text-white font-bold rounded-lg text-xs';
+      tabPhoto.className = 'px-3 py-1 bg-brand-100 text-brand-dark hover:bg-brand-200 font-bold rounded-lg text-xs';
+    });
+
+    // Start Draw Routine
+    drawBtn.addEventListener('click', () => {
+      if (isRolling) return;
+      if (!foods.length) {
+        alert('請先在設定中新增美食！');
+        openModal();
+        return;
+      }
+
+      isRolling = true;
+      drawBtn.disabled = true;
+      drawBtn.innerText = '抽籤中...';
+
+      // Hide Card, Show Slot
+      resultCard.classList.add('hidden');
+      slotBox.classList.remove('hidden');
+      mainTitle.className = 'text-3xl md:text-4xl font-black text-brand-dark mb-4 tracking-tight';
+      mainTitle.textContent = '今天吃什麼？';
+
+      let timer = setInterval(() => {
+        const randIndex = Math.floor(Math.random() * foods.length);
+        slotText.textContent = foods[randIndex].name;
+      }, 70);
+
+      setTimeout(() => {
+        clearInterval(timer);
+        selectedFood = foods[Math.floor(Math.random() * foods.length)];
+
+        // Swap Title with 生動彈跳動畫
+        mainTitle.textContent = `今天吃：${selectedFood.name}！`;
+        mainTitle.className = 'text-3xl md:text-4xl font-black text-brand-orange mb-3 tracking-tight animate-bounce-in';
+
+        // Render Media & Stores
+        renderResultCard(selectedFood);
+
+        slotBox.classList.add('hidden');
+        resultCard.classList.remove('hidden');
+
+        // Confetti effect
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 65, spread: 70, origin: { y: 0.6 } });
+        }
+
+        drawBtn.disabled = false;
+        drawBtn.innerText = '再抽一次';
+        isRolling = false;
+      }, 1800);
+    });
+
+    function renderResultCard(food) {
+      // Photo & Video Setup
+      foodImg.src = food.image || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80';
+      const vId = extractVid(food.videoId) || 'bN7kK-Lvh3A';
+      foodIframe.src = `https://www.youtube.com/embed/${vId}?autoplay=1&mute=1&loop=1&playlist=${vId}`;
+      tabPhoto.click();
+
+      // Multi-store list with Google Maps "馬上出發" button
+      storeList.innerHTML = '';
+      const stores = food.stores && food.stores.length > 0
+        ? food.stores
+        : [{ name: `搜尋附近的 ${food.name}`, address: '' }];
+
+      stores.forEach(st => {
+        const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(food.name + ' ' + st.name + ' ' + (st.address || ''))}`;
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between bg-brand-50 p-2 rounded-xl border border-brand-200';
+        item.innerHTML = `
+          <div class="pr-2 truncate">
+            <div class="font-bold text-brand-dark text-xs truncate">${st.name}</div>
+            <div class="text-[10px] text-gray-500 truncate">${st.address || '按下方直接搜尋地圖'}</div>
+          </div>
+          <a href="${mapUrl}" target="_blank" class="px-3 py-1 bg-brand-orange hover:bg-orange-600 text-white font-black text-xs rounded-lg shadow-cute-orange active:shadow-cute-orange-pressed active:translate-y-0.5 shrink-0">
+            馬上出發
+          </a>
+        `;
+        storeList.appendChild(item);
+      });
+    }
+
+    // Modal Operations
+    function openModal() {
+      renderModalList();
+      modalOverlay.classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeModal() {
+      modalOverlay.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function renderModalList() {
+      modalList.innerHTML = '';
+      foods.forEach((food, fIdx) => {
+        const item = document.createElement('div');
+        item.className = 'bg-white p-2.5 rounded-xl border border-brand-200 space-y-1.5 text-xs';
+        item.innerHTML = `
+          <div class="flex justify-between items-center font-bold">
+            <span class="text-brand-dark font-black">${food.name}</span>
+            <button onclick="removeFood(${fIdx})" class="text-red-400 hover:text-red-600">刪除</button>
+          </div>
+          <div class="text-[10px] text-gray-400">店家數量: ${food.stores ? food.stores.length : 0} 間</div>
+        `;
+        modalList.appendChild(item);
+      });
+    }
+
+    function removeFood(idx) {
+      foods.splice(idx, 1);
+      saveStorage();
+      renderModalList();
+    }
+
+    addFoodForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('add-name').value.trim();
+      const video = document.getElementById('add-video').value.trim();
+      if (!name) return;
+
+      foods.push({
+        id: Date.now().toString(),
+        name,
+        image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
+        videoId: extractVid(video),
+        stores: [{ name: `${name} 專賣店`, address: '點擊導航搜尋周邊' }]
+      });
+
+      document.getElementById('add-name').value = '';
+      document.getElementById('add-video').value = '';
+      saveStorage();
+      renderModalList();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      if (confirm('恢復預設選單？')) {
+        foods = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        saveStorage();
+        renderModalList();
+      }
+    });
+
+    openModalBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    saveModalBtn.addEventListener('click', closeModal);
+  </script>
 </body>
 </html>
